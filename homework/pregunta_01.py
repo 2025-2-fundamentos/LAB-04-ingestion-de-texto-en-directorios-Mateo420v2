@@ -1,6 +1,4 @@
-# pylint: disable=import-outside-toplevel
-# pylint: disable=line-too-long
-# flake8: noqa
+
 """
 Escriba el codigo que ejecute la accion solicitada en cada pregunta.
 """
@@ -71,3 +69,45 @@ def pregunta_01():
 
 
     """
+
+    import zipfile
+    import pandas as pd
+    import os
+
+    with zipfile.ZipFile("files/input.zip", "r") as zip:
+        zip.extractall("files")
+    
+    files = []
+    for root, dirs, files_in_dir in os.walk("files/input"):
+        for file_name in files_in_dir:
+            if file_name.endswith(".txt"):
+                files.append(os.path.join(root, file_name))
+
+    test = {"phrase":[], "target":[]}
+    train = {"phrase":[], "target":[]}
+
+    for file_path  in files:
+        with open(file_path , "r") as file:
+            phrase = file.read()
+        target = file_path.split(os.sep)[-2]
+
+        if "test" in file_path:
+            test["phrase"].append(phrase)
+            test["target"].append(target)
+
+        if "train" in file_path:
+            train["phrase"].append(phrase)
+            train["target"].append(target)
+    
+    test_df = pd.DataFrame(test)
+    train_df = pd.DataFrame(train)
+
+    dir = "files/output"
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+    
+    test_df.to_csv(os.path.join(dir, "test_dataset.csv"), index=False)
+    train_df.to_csv(os.path.join(dir, "train_dataset.csv"), index=False)
+ 
+if __name__ == "__main__":
+    pregunta_01()
